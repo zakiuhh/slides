@@ -295,13 +295,25 @@ When converting PowerPoint files:
 
 ---
 
-## Phase 5: Delivery
+## Phase 5: Final Review & Delivery
+
+### Required final review gate
+
+Before calling a deck finished or offering export/deployment, perform a final review of the actual rendered output:
+
+1. **Inspect the deck** — Review every slide at presentation size and the generated contact sheet. Check representative landscape and phone-sized captures for clipped text, overlap, visual hierarchy, consistency, and legibility. Verify images load and navigation/animations behave in a browser.
+2. **Resolve QA findings** — Fix browser errors, missing assets, layout defects, and accessibility errors. Review accessibility warnings in context; when a warning is intentionally retained, note why it is acceptable. If a content, layout, interaction, or motion change is made, rerun the relevant checks and inspect affected slides again.
+3. **Be transparent about coverage** — Never say automated or visual QA passed unless it was run. If Playwright is unavailable, report that and do the manual browser review; if neither can be done, identify review as outstanding rather than implying completion.
+4. **Show the user the result** — Share the HTML deck and, when available, the contact sheet and `qa-report.json`. Summarize what was checked, any unresolved warnings, and any limitations. Invite revisions or confirmation before proceeding with optional export or deployment.
+
+### Deliver the deck
 
 1. **Clean up** — Delete `.frontend-slides/slide-previews/` if it exists
 2. **Open** — Use `open [filename].html` to launch in browser
 3. **Summarize** — Tell the user:
-   - File location, style name, slide count
+   - File location, style name, slide count, and any supporting asset folder
    - Navigation: Arrow keys, Space, swipe/tap if enabled
+   - Review status: what was inspected, where the QA artifacts are, and any unresolved findings
    - How to customize: `:root` CSS variables for colors, font link for typography, `.reveal` class for animations
    - Inline text editing is available: Hover top-left corner or press E to enter edit mode, click any text to edit, Ctrl+S to save
    - Offer the natural post-draft actions: ask for revisions, edit text directly in the browser, or export/share

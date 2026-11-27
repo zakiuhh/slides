@@ -263,6 +263,17 @@ review cases the script cannot assess—especially text over imagery, gradients,
 or layered backgrounds. Automated checks cannot judge whether a deck feels
 clear, coherent, and right for its audience.
 
+### Final review before delivery
+
+Before treating a deck as finished or exporting/deploying it, inspect the rendered
+slides and review the QA report. Check slide legibility and consistency, confirm
+assets load, and test navigation and motion in a browser. Fix actionable errors;
+review warnings in context and note any intentional exceptions. If Playwright is
+unavailable, do a manual browser review and say so. If a later edit changes the
+layout or behavior, rerun the relevant checks. Share the deck and available QA
+artifacts with the user, summarize anything still unresolved, and invite
+revision before optional export or deployment.
+
 ### Export a PDF
 
 ```bash

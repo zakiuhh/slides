@@ -43,23 +43,23 @@ whole instead of reflowing the layout on smaller screens.
 
 1. **Set the brief.** Clarify the audience, purpose, length, and whether slides
    are meant for a live talk or for reading later.
-2. **Shape the story.** Organize the source content and decide what belongs on
-   each slide. Supplied images can guide the outline rather than being added as
-   an afterthought.
-3. **Compare three directions.** Generate three title-slide previews with
-   deliberately different visual systems. Choose one or mix specific elements.
-4. **Build the deck.** Carry the selected system across opening, section,
-   content, data, quote, and closing slides.
-5. **Review the render.** Inspect the screenshots for clipping, overlap, weak
-   hierarchy, and browser errors; fix issues before delivery.
+2. **Approve the storyboard.** Review a slide-by-slide plan with each slide's
+   purpose, takeaway, and any planned image. Request changes before design begins.
+3. **Choose a visual direction.** Compare three title-slide previews with
+   different visual systems, then select one or mix specific elements.
+4. **Build the deck.** Carry the approved story and selected style across opening,
+   section, content, data, quote, and closing slides.
+5. **Review the render.** Inspect screenshots and motion for clipping, overlap,
+   weak hierarchy, and browser errors; fix issues before delivery.
 6. **Share it.** Open the HTML locally, export a PDF, or deploy the deck.
 
 ### Try a request
 
 ```text
 Use Slides to make a 10-slide product launch deck for a live audience.
-The audience is design-conscious founders. Keep the copy concise and show me
-three distinct visual directions before building the full deck.
+The audience is design-conscious founders. First show me a slide-by-slide
+storyboard and wait for my approval. Then show three distinct visual directions
+and wait for my choice before building the full deck.
 ```
 
 Other useful starts:
@@ -87,9 +87,10 @@ https://github.com/zakiuhh/slides
 Create a presentation about [TOPIC] for [AUDIENCE]. Its purpose is [PURPOSE],
 and it should be about [NUMBER] slides. This is a [LIVE TALK / READING DECK].
 
-Follow the skill's content discovery and visual style process. Show me three
-clearly different single-slide previews first, then wait for me to choose a
-direction before making the full deck. Deliver a browser-ready HTML file. If
+Follow the skill's content discovery process. First show me a slide-by-slide
+storyboard with each slide's purpose and takeaway, and wait for my approval.
+Then show three clearly different single-slide style previews and wait for me
+to choose a direction before making the full deck. Deliver a browser-ready HTML file. If
 you cannot open the repository from this chat, tell me and ask me to attach
 SKILL.md and the supporting files rather than guessing what they say.
 ```
@@ -105,9 +106,10 @@ repository directly, ask me for the relevant files.
 
 Create a presentation about [TOPIC] for [AUDIENCE], for [PURPOSE], with about
 [NUMBER] slides. This is a [LIVE TALK / READING DECK]. Ask me the skill's
-content-discovery questions, show me three distinct style previews, and wait
-for me to choose before building the full deck. Save the finished HTML and its
-assets in ./slides-output/.
+content-discovery questions, then propose a slide-by-slide storyboard and wait
+for my approval. After that, show three distinct style previews and wait for my
+choice before building the full deck. Save the finished HTML and its assets in
+./slides-output/.
 ```
 
 Other coding agents can follow the same link-first approach: give them the

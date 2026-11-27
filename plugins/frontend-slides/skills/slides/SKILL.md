@@ -116,7 +116,7 @@ If user has content, ask them to share it.
 
 ### Step 1.2: Image Evaluation (if images provided)
 
-If user selected "No images" → skip to Phase 2.
+If the user selected "No images," skip image evaluation and continue to Step 1.3. The storyboard approval still applies.
 
 If user provides an image folder:
 
@@ -124,9 +124,26 @@ If user provides an image folder:
 2. **Inspect each image** — Use the agent's available image-understanding capability. If image reading is unavailable, use filenames/metadata and ask the user to clarify only when needed
 3. **Evaluate** — For each: what it shows, USABLE or NOT USABLE (with reason), what concept it represents, dominant colors
 4. **Co-design the outline** — Curated images inform slide structure alongside text. This is NOT "plan slides then add images" — design around both from the start (e.g., 3 screenshots → 3 feature slides, 1 logo → title/closing slide)
-5. **Confirm the outline** using the same structured-question mechanism when available: "Does this slide outline and image selection look right?" Options: Looks good / Adjust images / Adjust outline
+5. Carry usable image candidates and their proposed roles into Step 1.3. Do not ask for a separate outline confirmation here; Step 1.3 is the single storyboard approval gate.
 
 **Logo in previews:** If a usable logo was identified, embed it (base64) into each style preview in Phase 2 — the user sees their brand styled three different ways.
+
+### Step 1.3: Storyboard Approval (required before style previews)
+
+Before generating style previews, propose a concise slide-by-slide storyboard based on the brief, supplied content, density choice, and any usable images. This approval gate applies to new presentations and PPT conversions. Skip it only when the user has already provided an explicit, approved slide outline or asks to proceed without review.
+
+Show one row per planned slide:
+
+| # | Slide title / purpose | Key takeaway | Content or image role |
+|---|-----------------------|--------------|-----------------------|
+
+- Make the sequence tell a coherent story: opening/context, development/evidence, and a useful conclusion or next step where appropriate.
+- Keep titles specific to the user's material. Don't invent facts to fill the outline; mark information that is missing or needs confirmation.
+- Match the requested slide count and speaking/reading density. Combine or split beats as needed rather than planning an overstuffed slide.
+- Identify where supplied images will be used; don't force an image onto a slide if it doesn't support the story.
+- Ask one clear approval question using the available structured-question UI when possible: "Does this storyboard look right?" Offer **Approve**, **Revise**, and **Skip approval**.
+- Pause until the user approves or requests revisions. Update the storyboard and reconfirm after revisions. Do not generate style previews or the full deck before approval.
+- If the user chooses **Skip approval**, continue directly to Phase 2 without repeatedly asking for it.
 
 ---
 
@@ -136,7 +153,7 @@ If user provides an image folder:
 
 ### Step 2.0: Generate 3 Style Previews Directly
 
-Based on purpose, audience, mood, and content density, generate 3 distinct single-slide HTML previews showing typography, colors, animation, and overall aesthetic.
+Based on the approved storyboard, purpose, audience, mood, and content density, generate 3 distinct single-slide HTML previews showing typography, colors, animation, and overall aesthetic.
 
 Do not ask the user whether they want options or a preset picker. The default discovery experience is always visual comparison.
 
@@ -218,7 +235,7 @@ Unless the user requests a static deck, every presentation must include both a s
 - Respect `prefers-reduced-motion`; the reduced-motion stylesheet must remove nonessential movement and transition delays.
 - Test navigation in both directions and inspect transitions in the browser. Static screenshots are not enough to confirm timing or that the outgoing slide is layered correctly.
 
-If images were provided, the slide outline already incorporates them from Step 1.2. If not, CSS-generated visuals (gradients, shapes, patterns) provide visual interest — this is a fully supported first-class path.
+If images were provided, the approved storyboard already incorporates them from Step 1.3. If not, CSS-generated visuals (gradients, shapes, patterns) provide visual interest — this is a fully supported first-class path.
 
 Apply the user's density choice throughout the deck:
 
@@ -269,9 +286,10 @@ If the user selected a self-generated custom wildcard, treat that preview's CSS 
 When converting PowerPoint files:
 
 1. **Extract content** — Run `python scripts/extract-pptx.py <input.pptx> <output_dir>` (install python-pptx if needed: `pip install python-pptx`)
-2. **Confirm with user** — Present extracted slide titles, content summaries, and image counts
-3. **Style selection** — Proceed to Phase 2 for style discovery
-4. **Generate HTML** — Convert to chosen style, preserving all text, images (from assets/), slide order, and speaker notes (as HTML comments)
+2. **Confirm extracted material** — Present slide titles, content summaries, image counts, and notes for confirmation
+3. **Approve storyboard** — Propose a slide-by-slide redesign outline that respects the original narrative and content; use Step 1.3 and wait for approval before style previews
+4. **Style selection** — Proceed to Phase 2 for style discovery
+5. **Generate HTML** — Convert to the chosen style, preserving confirmed text, images (from assets/), slide order, and speaker notes (as HTML comments)
 
 ---
 

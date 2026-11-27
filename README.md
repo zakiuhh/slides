@@ -22,6 +22,7 @@ previews—not by choosing from a list of abstract adjectives.
 - [Review and share](#review-and-share)
 - [Maintain the skill package](#maintain-the-skill-package)
 - [Project map](#project-map)
+- [Credits](#credits)
 - [License](#license)
 
 ## What you can make
@@ -284,6 +285,17 @@ On macOS/Linux, use `python3` (or `python`) instead of `py`.
 | `assets/theme-screenshots/` | Local preview images used in this README |
 | `scripts/` | PPTX extraction, PDF export, deployment, QA, and maintenance tools |
 | `plugins/frontend-slides/` | Packaged Claude Code skill assets |
+
+## Credits
+
+This Slides skill is a modified version of
+[Zara Zhang’s Frontend Slides](https://github.com/zarazhangrui/frontend-slides).
+Credit and thanks go to Zara Zhang for the original skill and design workflow.
+
+Some template-reference screenshots are also sourced from her
+[`beautiful-html-templates` gallery](https://github.com/zarazhangrui/beautiful-html-templates).
+Their local copies, attribution, and MIT license notice are in
+[`assets/theme-screenshots/`](assets/theme-screenshots/).
 
 ## License
 

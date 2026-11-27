@@ -48,10 +48,13 @@ whole instead of reflowing the layout on smaller screens.
 3. **Choose a visual direction.** Compare three title-slide previews with
    different visual systems, then select one or mix specific elements.
 4. **Build the deck.** Carry the approved story and selected style across opening,
-   section, content, data, quote, and closing slides.
-5. **Review the render.** Inspect screenshots and motion for clipping, overlap,
-   weak hierarchy, and browser errors; fix issues before delivery.
-6. **Share it.** Open the HTML locally, export a PDF, or deploy the deck.
+   section, content, data, quote, and closing slides. Add a separate speaker-notes
+   companion when requested.
+5. **Review and refine.** Inspect screenshots and motion for clipping, overlap,
+   weak hierarchy, accessibility, and browser errors. Make focused revisions,
+   preserving approved story and style choices unless asked to change them.
+6. **Share it.** Hand over the reviewed HTML and QA status; export a PDF or deploy
+   the deck only if requested.
 
 ### Try a request
 
@@ -273,6 +276,21 @@ unavailable, do a manual browser review and say so. If a later edit changes the
 layout or behavior, rerun the relevant checks. Share the deck and available QA
 artifacts with the user, summarize anything still unresolved, and invite
 revision before optional export or deployment.
+
+### Requesting revisions
+
+For follow-up feedback, Slides makes targeted edits instead of rebuilding the
+whole presentation. It preserves the approved story and visual direction for
+untouched slides, reruns the relevant checks, and provides an updated review
+status. A major narrative or style change may need a revised storyboard first.
+
+### Optional speaker notes
+
+For a live talk, ask for a separate notes companion only when it has not already
+been requested or declined. When requested, `speaker-notes.md` can include
+slide-by-slide speaking cues, transitions, evidence reminders, and estimated
+timing for a user-provided duration. Timing is a planning estimate—not a
+promise—and notes stay separate from the visible slide content.
 
 ### Export a PDF
 

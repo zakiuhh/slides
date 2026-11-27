@@ -112,6 +112,8 @@ How dense should the deck feel? Options:
 
 Remember the user's density choice. It affects slide count, typography scale, amount of text per slide, layout density, and whether to favor cinematic presenter slides or self-contained reading slides.
 
+For a live-talk deck, capture the target talk duration if the user provides one. Ask whether they want a separate speaker-notes and timing companion only if they have not already stated a preference; do not add another required discovery question for reading-first decks.
+
 If user has content, ask them to share it.
 
 ### Step 1.2: Image Evaluation (if images provided)
@@ -246,6 +248,12 @@ If the user's stated needs are mixed, choose the closer of the two modes instead
 
 Never let high density become visual clutter. If a high-density slide starts to overflow, split it or redesign it into a clearer structure.
 
+### Optional speaker notes and rehearsal timing
+
+Create speaker notes only when requested or accepted by the user. Keep them separate from visible slide copy: save a companion `speaker-notes.md` beside the HTML deck, with entries keyed by slide number and title. For each slide, include a concise speaking cue, useful transition, and any evidence, pronunciation, or caveat the presenter should remember. Do not turn notes into a verbatim script unless asked.
+
+If the user provides a target duration, estimate per-slide timing and total runtime from the actual notes and intended speaking pace. Label the timing as an estimate, leave room for pauses and audience interaction, and flag when the outline is unlikely to fit instead of rushing or deleting important ideas silently. Never invent source details or facts for notes; mark missing support as a prompt for the presenter. Keep the HTML self-contained and deliver the notes as an optional companion file.
+
 If the user selected a bold template from `bold-template-pack`, read that one template's full `design.md` before generating. Do not read the other bold templates. Treat `design.md` as the design recipe:
 
 - Preserve its fonts, palette, decorative vocabulary, spacing rhythm, and component grammar.
@@ -305,6 +313,16 @@ Before calling a deck finished or offering export/deployment, perform a final re
 2. **Resolve QA findings** — Fix browser errors, missing assets, layout defects, and accessibility errors. Review accessibility warnings in context; when a warning is intentionally retained, note why it is acceptable. If a content, layout, interaction, or motion change is made, rerun the relevant checks and inspect affected slides again.
 3. **Be transparent about coverage** — Never say automated or visual QA passed unless it was run. If Playwright is unavailable, report that and do the manual browser review; if neither can be done, identify review as outstanding rather than implying completion.
 4. **Show the user the result** — Share the HTML deck and, when available, the contact sheet and `qa-report.json`. Summarize what was checked, any unresolved warnings, and any limitations. Invite revisions or confirmation before proceeding with optional export or deployment.
+
+### Revision loop
+
+When the user requests changes after seeing a draft:
+
+1. Classify the feedback as a local slide edit, a deck-wide visual/content adjustment, or a structural story change. Ask a concise clarifying question only if the request is ambiguous or contradictory.
+2. Preserve the approved storyboard and style choices for unrelated slides. Make the smallest set of changes that fully addresses the feedback; do not regenerate the entire deck for a local edit.
+3. If the requested change materially alters the narrative, slide count, or approved visual direction, summarize that impact and confirm the revised plan unless the user explicitly asks you to proceed without another approval.
+4. Recheck the changed slides. Rerun full-deck QA for shared CSS, navigation, animation, or other deck-wide changes; update the contact sheet and report when their results are stale.
+5. Hand back the revised deck with a brief summary of what changed and the current review status. Keep previous findings visible until verified fixed.
 
 ### Deliver the deck
 

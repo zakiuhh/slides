@@ -333,7 +333,7 @@ On macOS/Linux, use `python3` (or `python`) instead of `py`.
 | `bold-template-pack/` | 34 optional, deeply specified design systems |
 | `html-template.md` | Presentation markup, navigation, and editing patterns |
 | `viewport-base.css` | Required fixed-stage CSS |
-| `animation-patterns.md` | Motion patterns and guidance |
+| `animation-patterns.md` | Transition catalog and entrance recipes, including complex motion and reduced-motion fallbacks |
 | `assets/theme-screenshots/` | Local preview images used in this README |
 | `scripts/` | PPTX extraction, PDF export, deployment, visual QA, and accessibility preflight tools |
 | `plugins/frontend-slides/` | Packaged Claude Code skill assets |

@@ -232,7 +232,7 @@ Generate the full presentation using content from Phase 1 (text, or text + curat
 Unless the user requests a static deck, every presentation must include both a slide-to-slide transition and on-slide entrance animation. Read [animation-patterns.md](animation-patterns.md) and choose motion that supports the deck's pace and visual system.
 
 - Use the base cross-fade from `viewport-base.css` as the restrained default. A directional transition may be used when it reinforces sequence or section changes.
-- Use a small, consistent set of entrance effects (for example, title fade-up and a short stagger for grouped content). Keep copy readable immediately and avoid animating every object.
+- Use [animation-patterns.md](animation-patterns.md) as a broader motion catalog: vary transitions (such as push, zoom, wipe, curtain, or a subtle 3D hinge) and use complex entrances (such as masked headlines, line draws, chart builds, timelines, layered imagery, or a short multi-beat hero sequence) when they serve the story. Pick at most one signature transition and one complex entrance motif per section; keep the rest simple and consistent. Keep copy readable immediately and avoid animating every object.
 - Trigger slide transitions through `.active` / `.visible` classes. Never switch slides with `display: none`; it prevents the outgoing slide from transitioning and can disrupt layout.
 - Respect `prefers-reduced-motion`; the reduced-motion stylesheet must remove nonessential movement and transition delays.
 - Test navigation in both directions and inspect transitions in the browser. Static screenshots are not enough to confirm timing or that the outgoing slide is layered correctly.

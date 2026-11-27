@@ -66,6 +66,7 @@ const localFailures = [];
 const pageErrors = [];
 const consoleErrors = [];
 const overflowWarnings = [];
+const accessibilityFindings = [];
 let browser;
 let server;
 
@@ -172,6 +173,100 @@ try {
     await page.waitForTimeout(80);
   };
 
+  const documentFindings = await page.evaluate(() => {
+    const findings = [];
+    if (!document.documentElement.getAttribute('lang')) {
+      findings.push({ severity: 'error', check: 'document-language', message: 'Set a language on the <html> element.' });
+    }
+    if (!document.title.trim()) {
+      findings.push({ severity: 'error', check: 'document-title', message: 'Add a descriptive page title.' });
+    }
+
+    document.querySelectorAll('img').forEach((image) => {
+      if (!image.hasAttribute('alt')) {
+        findings.push({ severity: 'error', check: 'image-alt', message: `Image is missing alt text: ${image.getAttribute('src') || '(no source)'}` });
+      }
+    });
+
+    const controls = document.querySelectorAll('button,a[href],input:not([type="hidden"]),select,textarea,[role="button"],[tabindex]:not([tabindex="-1"])');
+    controls.forEach((control) => {
+      if (control.closest('[aria-hidden="true"]')) return;
+      const labelledBy = (control.getAttribute('aria-labelledby') || '')
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent || '')
+        .join(' ')
+        .trim();
+      const imageAlt = [...control.querySelectorAll('img[alt]')].map((image) => image.alt).join(' ').trim();
+      const name = control.getAttribute('aria-label')
+        || labelledBy
+        || control.getAttribute('title')
+        || control.innerText?.trim()
+        || control.value?.trim()
+        || imageAlt
+        || [...(control.labels || [])].map((label) => label.textContent.trim()).join(' ');
+      if (!name?.trim()) {
+        findings.push({ severity: 'error', check: 'control-name', message: `Interactive control has no accessible name: <${control.tagName.toLowerCase()}>` });
+      }
+    });
+
+    document.querySelectorAll('svg:not([aria-hidden="true"])').forEach((svg) => {
+      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+        findings.push({ severity: 'warning', check: 'svg-name', message: 'SVG may need an accessible name or aria-hidden="true" if decorative.' });
+      }
+    });
+    return findings;
+  });
+  accessibilityFindings.push(...documentFindings);
+
+  const startingSlide = await page.evaluate(() => (
+    [...document.querySelectorAll('.slide')].findIndex((slide) => slide.classList.contains('active') || slide.classList.contains('visible'))
+  ));
+  if (deckInfo.slideCount > 1 && startingSlide >= 0) {
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(420);
+    const nextSlide = await page.evaluate(() => (
+      [...document.querySelectorAll('.slide')].findIndex((slide) => slide.classList.contains('active') || slide.classList.contains('visible'))
+    ));
+    if (nextSlide !== Math.min(startingSlide + 1, deckInfo.slideCount - 1)) {
+      accessibilityFindings.push({ severity: 'error', check: 'keyboard-navigation', message: 'ArrowRight did not advance the presentation by one slide.' });
+      await setActiveSlide(startingSlide);
+    } else {
+      await page.keyboard.press('ArrowLeft');
+      await page.waitForTimeout(420);
+      const returnedSlide = await page.evaluate(() => (
+        [...document.querySelectorAll('.slide')].findIndex((slide) => slide.classList.contains('active') || slide.classList.contains('visible'))
+      ));
+      if (returnedSlide !== startingSlide) {
+        accessibilityFindings.push({ severity: 'error', check: 'keyboard-navigation', message: 'ArrowLeft did not return to the previous slide.' });
+        await setActiveSlide(startingSlide);
+      }
+    }
+  }
+
+  const reducedMotionCheck = await page.evaluate(() => {
+    const parseDurations = (value) => value.split(',').map((part) => {
+      const duration = part.trim();
+      return duration.endsWith('ms') ? Number.parseFloat(duration) : Number.parseFloat(duration) * 1000;
+    });
+    const longMotion = [...document.querySelectorAll('.slide, .slide *')].flatMap((element) => {
+      const style = getComputedStyle(element);
+      const durations = [...parseDurations(style.transitionDuration), ...parseDurations(style.animationDuration)];
+      return durations.some((duration) => duration > 50)
+        ? [{ element: element.tagName.toLowerCase(), className: String(element.className?.baseVal || element.className || '').slice(0, 80) }]
+        : [];
+    }).slice(0, 10);
+    return {
+      preferenceApplied: matchMedia('(prefers-reduced-motion: reduce)').matches,
+      longMotion,
+    };
+  });
+  if (!reducedMotionCheck.preferenceApplied) {
+    accessibilityFindings.push({ severity: 'error', check: 'reduced-motion', message: 'Browser did not apply prefers-reduced-motion during the QA run.' });
+  }
+  if (reducedMotionCheck.longMotion.length) {
+    accessibilityFindings.push({ severity: 'error', check: 'reduced-motion', message: `Motion durations exceed 50ms under reduced-motion: ${JSON.stringify(reducedMotionCheck.longMotion)}` });
+  }
+
   const slideFiles = [];
   for (let index = 0; index < deckInfo.slideCount; index += 1) {
     await setActiveSlide(index);
@@ -180,11 +275,13 @@ try {
     await page.screenshot({ path, animations: 'disabled' });
     slideFiles.push(filename);
 
-    const warnings = await page.evaluate(() => {
+    const slideChecks = await page.evaluate(() => {
       const slide = document.querySelector('.slide.active, .slide.visible');
-      if (!slide) return [];
+      if (!slide) return { layout: [], accessibility: [] };
       const slideRect = slide.getBoundingClientRect();
-      return [...slide.querySelectorAll('h1,h2,h3,p,li,blockquote,td,th')]
+      const textElements = [...slide.querySelectorAll('h1,h2,h3,h4,p,li,blockquote,td,th,figcaption,button,a[href],label,dt,dd,span')]
+        .filter((element) => (element.textContent || '').trim());
+      const layout = textElements
         .filter((element) => {
           const rect = element.getBoundingClientRect();
           const overflow = element.scrollWidth > element.clientWidth + 2
@@ -205,8 +302,83 @@ try {
               || rect.right > slideRect.right + 2 || rect.bottom > slideRect.bottom + 2;
           })(),
         }));
+
+      const parseColor = (value) => {
+        const match = value.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/i);
+        if (!match) return null;
+        const channels = match.slice(1, 4).map(Number);
+        const alpha = match[4] ? Number.parseFloat(match[4]) / (match[4].endsWith('%') ? 100 : 1) : 1;
+        if (channels.some((channel) => !Number.isFinite(channel)) || alpha < 0.999) return null;
+        return channels;
+      };
+      const luminance = (channels) => {
+        const linear = channels.map((channel) => {
+          const value = channel / 255;
+          return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+      };
+      const accessibility = [];
+      const seen = new Set();
+      for (const element of textElements) {
+        const text = (element.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 90);
+        const style = getComputedStyle(element);
+        const fontSize = Number.parseFloat(style.fontSize);
+        if (fontSize > 0 && fontSize < 18) {
+          const key = `small:${text}:${Math.round(fontSize)}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            accessibility.push({
+              severity: 'warning', check: 'small-text',
+              message: `Slide text is ${fontSize.toFixed(1)}px, below the 18px review guide: “${text}”`,
+            });
+          }
+        }
+
+        let background = null;
+        let uncertainBackground = false;
+        for (let node = element; node && node !== slide.parentElement; node = node.parentElement) {
+          const nodeStyle = getComputedStyle(node);
+          if (nodeStyle.backgroundImage !== 'none' || Number.parseFloat(nodeStyle.opacity) < 0.999) {
+            uncertainBackground = true;
+            break;
+          }
+          const rawBackground = nodeStyle.backgroundColor;
+          if (rawBackground && rawBackground !== 'transparent' && rawBackground !== 'rgba(0, 0, 0, 0)') {
+            const color = parseColor(rawBackground);
+            if (color) background = color;
+            else uncertainBackground = true;
+            break;
+          }
+          if (node === slide) break;
+        }
+        const foreground = parseColor(style.color);
+        if (!uncertainBackground && foreground && background) {
+          const foregroundLuminance = luminance(foreground);
+          const backgroundLuminance = luminance(background);
+          const ratio = (Math.max(foregroundLuminance, backgroundLuminance) + 0.05)
+            / (Math.min(foregroundLuminance, backgroundLuminance) + 0.05);
+          const isLarge = fontSize >= 24 || (fontSize >= 18.66 && Number.parseInt(style.fontWeight, 10) >= 700);
+          const minimum = isLarge ? 3 : 4.5;
+          if (ratio < minimum) {
+            const key = `contrast:${text}:${ratio.toFixed(2)}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              accessibility.push({
+                severity: 'warning', check: 'text-contrast',
+                message: `Text contrast is approximately ${ratio.toFixed(2)}:1 (review target ${minimum}:1): “${text}”`,
+              });
+            }
+          }
+        }
+        if (accessibility.length >= 30) break;
+      }
+      return { layout, accessibility };
     });
-    warnings.forEach((warning) => overflowWarnings.push(`Slide ${index + 1}: ${JSON.stringify(warning)}`));
+    slideChecks.layout.forEach((warning) => overflowWarnings.push(`Slide ${index + 1}: ${JSON.stringify(warning)}`));
+    slideChecks.accessibility.forEach((finding) => {
+      accessibilityFindings.push({ ...finding, message: `Slide ${index + 1}: ${finding.message}` });
+    });
   }
 
   const sampleSlides = [...new Set([0, Math.floor((deckInfo.slideCount - 1) / 2), deckInfo.slideCount - 1])];
@@ -220,6 +392,7 @@ try {
     }
   }
 
+  const accessibilityErrors = accessibilityFindings.filter((finding) => finding.severity === 'error');
   const report = {
     input: htmlPath,
     stage: deckInfo.stage,
@@ -229,7 +402,8 @@ try {
     consoleErrors,
     localAssetFailures: localFailures,
     layoutWarnings: overflowWarnings,
-    reviewStatus: pageErrors.length || consoleErrors.length || localFailures.length
+    accessibilityFindings,
+    reviewStatus: pageErrors.length || consoleErrors.length || localFailures.length || accessibilityErrors.length
           ? 'needs-fix'
           : 'review-screenshots',
   };
@@ -247,12 +421,17 @@ body{font:16px/1.4 system-ui,sans-serif;margin:24px;background:#f4f1eb;color:#22
 
   console.log(`Captured ${deckInfo.slideCount} slides to ${relative(process.cwd(), outputDir) || outputDir}.`);
   console.log(`Open ${pathToFileURL(resolve(outputDir, 'index.html')).href} to review the contact sheet.`);
-  console.log(`Runtime errors: ${pageErrors.length}; local asset failures: ${localFailures.length}; layout warnings: ${overflowWarnings.length}.`);
+  const accessibilityWarnings = accessibilityFindings.filter((finding) => finding.severity === 'warning');
+  console.log(`Runtime errors: ${pageErrors.length}; local asset failures: ${localFailures.length}; layout warnings: ${overflowWarnings.length}; accessibility findings: ${accessibilityFindings.length} (${accessibilityErrors.length} errors, ${accessibilityWarnings.length} warnings).`);
   if (pageErrors.length) pageErrors.forEach((error) => console.error(`Page error: ${error}`));
-  if (consoleErrors.length) consoleErrors.forEach((error) => console.warn(`Console error: ${error}`));
+  if (consoleErrors.length) console.warn(`Console errors: ${consoleErrors.length}`);
   if (localFailures.length) localFailures.forEach((error) => console.error(error));
   if (overflowWarnings.length) overflowWarnings.forEach((warning) => console.warn(warning));
-  if (pageErrors.length || consoleErrors.length || localFailures.length) process.exitCode = 1;
+  accessibilityFindings.forEach((finding) => {
+    const log = finding.severity === 'error' ? console.error : console.warn;
+    log(`Accessibility ${finding.severity}: ${finding.message}`);
+  });
+  if (pageErrors.length || consoleErrors.length || localFailures.length || accessibilityErrors.length) process.exitCode = 1;
 } catch (error) {
   console.error(`Preview QA failed: ${error.message}`);
   process.exitCode = 1;

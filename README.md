@@ -249,9 +249,19 @@ node scripts/preview-qa.mjs ./my-deck/
 
 The command captures every slide at 1920×1080, plus representative 1280×720
 and phone-size views. It writes a contact sheet and `qa-report.json` under
-`.frontend-slides-qa/`. Inspect the contact sheet yourself: automated checks
-can spot likely overflow and browser failures, but they cannot judge whether a
-deck feels clear, coherent, and right for its audience.
+`.frontend-slides-qa/`. The report includes browser and layout issues, plus an
+accessibility preflight for document language/title, image alt attributes,
+control names, arrow-key slide navigation, reduced-motion behavior, SVG names,
+small text, and contrast against confidently identified solid backgrounds.
+Accessibility errors contribute to a failing exit status; small-text and
+contrast findings are warnings for human review. Contrast checks intentionally
+skip gradients, images, translucent colors, and other uncertain backgrounds.
+
+Treat these results as prompts, not a complete WCAG audit. Inspect the contact
+sheet yourself, check readability and color meaning in context, and manually
+review cases the script cannot assess—especially text over imagery, gradients,
+or layered backgrounds. Automated checks cannot judge whether a deck feels
+clear, coherent, and right for its audience.
 
 ### Export a PDF
 
@@ -296,7 +306,7 @@ On macOS/Linux, use `python3` (or `python`) instead of `py`.
 | `viewport-base.css` | Required fixed-stage CSS |
 | `animation-patterns.md` | Motion patterns and guidance |
 | `assets/theme-screenshots/` | Local preview images used in this README |
-| `scripts/` | PPTX extraction, PDF export, deployment, QA, and maintenance tools |
+| `scripts/` | PPTX extraction, PDF export, deployment, visual QA, and accessibility preflight tools |
 | `plugins/frontend-slides/` | Packaged Claude Code skill assets |
 
 ## Credits

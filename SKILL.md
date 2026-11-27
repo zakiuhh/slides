@@ -256,6 +256,8 @@ If the user selected a bold template from `bold-template-pack`, read that one te
 - Use `template.html` only as a last-resort implementation reference for the selected template.
 - After generating, verify both content overflow and panel overlap in rendered browser screenshots. `scrollHeight` checks alone are not enough because grid panels can visually cover each other.
 - When Node.js and Playwright are available, run `node scripts/preview-qa.mjs <deck.html-or-folder>` and inspect the generated contact sheet. Review every slide at 1920×1080 plus representative 1280×720 and phone-sized captures. Fix browser errors, missing local assets, clipping, and overlap before delivery. The automated warnings are prompts to inspect, not proof of visual defects.
+- Treat the report's accessibility findings as a preflight, not a complete WCAG audit. Fix errors such as missing document language/title, image alt attributes, unnamed controls, broken arrow-key slide navigation, or motion that remains active under reduced-motion settings. Review warnings for SVG naming, text under 18px, and low contrast; the contrast estimate only covers colors on identifiable opaque solid backgrounds, so check gradient, image, translucent, and layered backgrounds manually.
+- Review text size and contrast in context: small labels can be intentional, but body copy and key information must remain comfortably readable. Confirm captions, diagrams, and color-coded meaning are understandable without relying on color alone. Address warnings or record why an exception is appropriate before delivery.
 - If Playwright is unavailable, open the deck in a browser and inspect every slide manually at presentation size and a phone viewport; do not skip visual verification.
 
 If the user selected a self-generated custom wildcard, treat that preview's CSS and layout as the design recipe:
@@ -413,4 +415,4 @@ This captures each slide as a screenshot and combines them into a PDF. Perfect f
 | [scripts/extract-pptx.py](scripts/extract-pptx.py) | Python script for PPT content extraction                             | Phase 4 (conversion)      |
 | [scripts/deploy.sh](scripts/deploy.sh)             | Deploy slides to Vercel for instant sharing                          | Phase 6 (sharing)         |
 | [scripts/export-pdf.sh](scripts/export-pdf.sh)     | Export slides to PDF                                                 | Phase 6 (sharing)         |
-| [scripts/preview-qa.mjs](scripts/preview-qa.mjs)   | Capture rendered slides and flag browser/layout issues               | Phase 3 (visual QA)       |
+| [scripts/preview-qa.mjs](scripts/preview-qa.mjs) | Capture rendered slides and report browser, layout, and accessibility preflight findings | Phase 3 (visual QA) |

@@ -23,7 +23,7 @@ Focus on:
 
 - Typography: Choose fonts that are beautiful, unique, and interesting. Avoid generic fonts like Arial and Inter; opt instead for distinctive choices that elevate the frontend's aesthetics.
 - Color & Theme: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes. Draw from IDE themes and cultural aesthetics for inspiration.
-- Motion: Use animations for effects and micro-interactions. Prioritize CSS-only solutions for HTML. Use Motion library for React when available. Focus on high-impact moments: one well-orchestrated page load with staggered reveals (animation-delay) creates more delight than scattered micro-interactions.
+- Motion: Unless the user asks for a static deck, include both intentional slide-to-slide transitions and restrained on-slide entrance animations. Use CSS for HTML, keep one consistent motion language, and let motion clarify hierarchy or pacing rather than decorate every element.
 - Backgrounds: Create atmosphere and depth rather than defaulting to solid colors. Layer CSS gradients, use geometric patterns, or add contextual effects that match the overall aesthetic.
 
 Avoid generic AI-generated aesthetics:
@@ -48,7 +48,8 @@ These invariants apply to EVERY slide in EVERY presentation:
 - Use fixed internal slide measurements at the 1920×1080 design size.
 - Slide visibility must be controlled by `.active` / `.visible` using `visibility`, `opacity`, and `pointer-events` from `viewport-base.css`. Do not use `display: none` / `display: block` for slide switching; later layout classes such as `.slide-content { display: flex; }` can override them and make every slide visible at once.
 - Use `clamp()` only for non-slide UI outside the stage, or for small fallback previews where a full stage is impractical.
-- Include `prefers-reduced-motion` support
+- Include `prefers-reduced-motion` support; reduced-motion settings must effectively disable nonessential transitions and animations.
+- Unless the user requests no motion, include a consistent slide transition plus purposeful entrance reveals; use `.active` / `.visible` state changes so transitions remain compatible with the fixed-stage controller.
 - Never negate CSS functions directly (`-clamp()`, `-min()`, `-max()` are silently ignored) — use `calc(-1 * clamp(...))` instead
 
 **When generating, read `viewport-base.css` and include its full contents in every presentation.**
@@ -206,6 +207,16 @@ If "Mix elements", ask for specifics.
 ## Phase 3: Generate Presentation
 
 Generate the full presentation using content from Phase 1 (text, or text + curated images) and style from Phase 2.
+
+### Motion and transitions (required by default)
+
+Unless the user requests a static deck, every presentation must include both a slide-to-slide transition and on-slide entrance animation. Read [animation-patterns.md](animation-patterns.md) and choose motion that supports the deck's pace and visual system.
+
+- Use the base cross-fade from `viewport-base.css` as the restrained default. A directional transition may be used when it reinforces sequence or section changes.
+- Use a small, consistent set of entrance effects (for example, title fade-up and a short stagger for grouped content). Keep copy readable immediately and avoid animating every object.
+- Trigger slide transitions through `.active` / `.visible` classes. Never switch slides with `display: none`; it prevents the outgoing slide from transitioning and can disrupt layout.
+- Respect `prefers-reduced-motion`; the reduced-motion stylesheet must remove nonessential movement and transition delays.
+- Test navigation in both directions and inspect transitions in the browser. Static screenshots are not enough to confirm timing or that the outgoing slide is layered correctly.
 
 If images were provided, the slide outline already incorporates them from Step 1.2. If not, CSS-generated visuals (gradients, shapes, patterns) provide visual interest — this is a fully supported first-class path.
 

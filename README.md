@@ -19,6 +19,7 @@ previews—not by choosing from a list of abstract adjectives.
 - [Choose a visual language](#choose-a-visual-language)
 - [Theme screenshot gallery](#theme-screenshot-gallery)
 - [Fixed-stage design](#fixed-stage-design-readable-everywhere)
+- [Motion and transitions](#motion-and-transitions)
 - [Review and share](#review-and-share)
 - [Maintain the skill package](#maintain-the-skill-package)
 - [Project map](#project-map)
@@ -213,6 +214,16 @@ browser. The stage stays 16:9 on phones and tablets; it letterboxes rather than
 reflowing the slide content. The skill also calls for reduced-motion support,
 keyboard navigation, and layouts that fit the selected speaking or reading
 density.
+
+## Motion and transitions
+
+Unless you ask for a static deck, the skill adds both slide-to-slide transitions
+and on-slide entrance animations. The default is a restrained 360ms cross-fade,
+with content revealing in a short, deliberate sequence. The motion can be
+adapted to the selected visual style, but should help guide attention—not delay
+reading or decorate every element. Reduced-motion preferences disable
+nonessential movement. See [`animation-patterns.md`](animation-patterns.md) for
+examples and guidance.
 
 Generated presentations have no runtime dependencies. Optional build-time
 utilities are separate:

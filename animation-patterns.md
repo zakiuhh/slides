@@ -13,7 +13,26 @@ Use this reference when generating presentations. Match animations to the intend
 | **Calm / Minimal** | Very slow subtle motion, gentle fades | High whitespace, muted palette, serif typography, generous padding |
 | **Editorial / Magazine** | Staggered text reveals, image-text interplay | Strong type hierarchy, pull quotes, grid-breaking layouts, serif headlines + sans body |
 
+## Slide-to-Slide Transitions
+
+Unless the user requests a static presentation, use a deliberate transition between slides as well as entrance animation within each slide. The fixed-stage stylesheet provides a restrained cross-fade; change it only when a different transition clearly supports the deck's visual language or sequence.
+
+```css
+/* Base transition: fades in the new slide and lets the old one finish fading out. */
+.slide {
+    transition: opacity 360ms ease, visibility 0s linear 360ms;
+}
+.slide.active,
+.slide.visible {
+    transition-delay: 0s;
+}
+```
+
+The controller should toggle `.active` / `.visible` classes and let CSS animate opacity and visibility. Do not switch slides with `display: none`, which removes the outgoing slide before its transition can play. Keep direction changes predictable and test both forward and backward navigation. Reserve stronger movement, such as a directional push, for section boundaries or narrative moments—not every slide.
+
 ## Entrance Animations
+
+Use a consistent, restrained set of entrance effects to establish hierarchy: titles first, then grouped content. Stagger related items briefly; avoid making reading wait on long sequences. The slide's key message should remain understandable when motion is reduced or animations are skipped.
 
 ```css
 /* Fade + Slide Up (most versatile) */
@@ -104,7 +123,8 @@ class TiltEffect {
 | Problem | Fix |
 |---------|-----|
 | Fonts not loading | Check Fontshare/Google Fonts URL; ensure font names match in CSS |
-| Animations not triggering | Verify Intersection Observer is running; check `.visible` class is being added |
+| Slide transitions not triggering | Confirm the controller toggles `.active` / `.visible` and slide visibility is not controlled with `display: none` |
+| Entrance animations not triggering | Verify the `.visible` class is being added and that the reduced-motion preference is not active |
 | Scroll snap not working | Ensure `scroll-snap-type: y mandatory` on html; each slide needs `scroll-snap-align: start` |
 | Mobile issues | Disable heavy effects at 768px breakpoint; test touch events; reduce particle count |
 | Performance issues | Use `will-change` sparingly; prefer `transform`/`opacity` animations; throttle scroll handlers |

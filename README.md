@@ -277,6 +277,23 @@ layout or behavior, rerun the relevant checks. Share the deck and available QA
 artifacts with the user, summarize anything still unresolved, and invite
 revision before optional export or deployment.
 
+### Visual consistency pass
+
+Review the contact sheet and compare slides with similar roles. Check that:
+
+- **Typography:** heading and body styles use a coherent type scale and hierarchy.
+- **Spacing:** margins, alignment, grid rules, and gaps follow a consistent rhythm.
+- **Color:** palette choices and semantic color meanings stay stable across slides.
+- **Charts:** comparable data visuals share a visual language for labels, axes,
+  marks, and number formatting.
+- **Motion:** transitions, easing, and entrance effects feel like one system,
+  rather than unrelated effects chosen slide by slide.
+
+Consistency does not mean every slide must look identical. Section openers,
+quotes, data moments, and closing slides can intentionally shift emphasis or
+layout when that change supports the storyboard. Keep recognizable design cues
+across the change, and fix unexplained differences before delivery.
+
 ### Requesting revisions
 
 For follow-up feedback, Slides makes targeted edits instead of rebuilding the
